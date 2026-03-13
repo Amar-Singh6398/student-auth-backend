@@ -11,10 +11,10 @@ const generateToken = (user) =>
 
 // REGISTER
 exports.register = async (req, res) => {
-  const { email, password, role = "student" } = req.body;
+  const {name, email, password, role = "student" } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ msg: "Email and password are required" });
+  if (!name || !email || !password) {
+    return res.status(400).json({ msg: "Name ,Email and password are required" });
   }
 
   try {
@@ -23,7 +23,7 @@ exports.register = async (req, res) => {
     if (user) return res.status(400).json({ msg: "User already exists" });
 
     // Create new user (password will be hashed automatically via pre-save hook)
-    user = new User({ email, password, role });
+    user = new User({name, email, password, role });
     await user.save();
 
     // Generate token
@@ -31,7 +31,9 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { email: user.email, role: user.role }
+      user: { name: user.name, 
+              email: user.email, 
+              role: user.role }
     });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
@@ -59,7 +61,7 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       token,
-      user: { email: user.email, role: user.role }
+      user: { name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
@@ -69,7 +71,17 @@ exports.login = async (req, res) => {
 
 // GET PROFILE
 exports.getProfile = async (req, res) => {
-
-  console.log("USER:", req.user); // <--- debug
-  res.status(200).json({ user: req.user });
+  try {
+    res.status(200).json({
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role
+      }
+    });
+  } catch (err) {
+    console.error("GET PROFILE ERROR:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
 };
