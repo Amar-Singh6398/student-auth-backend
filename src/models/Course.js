@@ -28,6 +28,7 @@ const CourseSchema = new mongoose.Schema(
     modules: [ModuleSchema],
     totalLessons: { type: Number, default: 0 },
     enrollmentCount: { type: Number, default: 0 },
+    students: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
